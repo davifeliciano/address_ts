@@ -14,7 +14,7 @@ CREATE EXTENSION IF NOT EXISTS unaccent;
 
 CREATE OR REPLACE FUNCTION remove_leading_zeroes(text)
 RETURNS text LANGUAGE SQL IMMUTABLE AS $$
-    SELECT regexp_replace($1, '(^|\s)0+(\d+\s)', '\1\2', 'g')
+    SELECT regexp_replace($1, '(^|\s)0+(\d+(?:$|\s))', '\1\2', 'g')
 $$;
 
 CREATE OR REPLACE FUNCTION remove_punctuation(text)
