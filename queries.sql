@@ -2,7 +2,7 @@ SELECT
     lt_endereco,
     ts_rank(address_tsvector, query) AS rank
 FROM
-    lotes_implantados li,
+    lotesimplantados li,
     plainto_tsquery(
         'address',
         filter_text('sucupira ch 6 lt 4')
@@ -10,31 +10,40 @@ FROM
 WHERE query @@ address_tsvector
 ORDER BY rank DESC;
 
-WITH li AS (
+WITH cte AS (
     SELECT
-        *,
+        li.*,
+        ras.nome AS lt_ra_nome,
         websearch_to_tsquery(
             'address',
+                   filter_text(lt_endereco)        || ' ' ||
                    filter_text(lt_setor)           || ' ' ||
             '"' || filter_text(lt_quadra)   || '"' || ' ' ||
             '"' || filter_text(lt_conjunto) || '"' || ' ' ||
-                   filter_text(lt_lote)
+            '"' || filter_text(lt_lote)     || '"'
         ) AS query
-    FROM lotes_implantados
-    LIMIT 1000
+    FROM lotesimplantados li
+    LEFT JOIN ras ON ras.numero = lt_ra
+    WHERE ras.nome = 'Riacho Fundo'
 )
 SELECT
     *
 FROM (
     SELECT
-        li.ct_ciu,
-        c.endereco,
-        c.bairro,
-        c.cidade,
-        li.lt_endereco,
-        ts_rank(c.address_tsvector, li.query) AS ts_rank,
-        rank() OVER(PARTITION BY li.ct_ciu ORDER BY ts_rank(c.address_tsvector, li.query) DESC) AS rank
-    FROM cadastrofiscal c, li
-    WHERE li.query @@ c.address_tsvector
+        cte.ct_ciu,
+        cte.lt_endereco,
+        cte.lt_setor,
+        cte.lt_quadra,
+        cte.lt_conjunto,
+        cte.lt_lote,
+        cte.lt_nome,
+        cte.lt_ra_nome,
+        cf.endereco,
+        cf.bairro,
+        cf.cidade,
+        ts_rank(cf.address_tsvector, cte.query) AS ts_rank,
+        rank() OVER(PARTITION BY cte.ct_ciu ORDER BY ts_rank(cf.address_tsvector, cte.query) DESC) AS rank
+    FROM cadastrofiscal cf, cte
+    WHERE cf.bairro ILIKE '%' || cte.lt_ra_nome || '%' AND cte.query @@ cf.address_tsvector
 ) t
 WHERE rank = 1;
