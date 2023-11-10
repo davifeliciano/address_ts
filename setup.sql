@@ -111,7 +111,14 @@ CREATE INDEX cf_ts_idx ON cadastrofiscal USING GIN (address_tsvector);
 ALTER TABLE lotesimplantados
 ADD COLUMN address_tsvector tsvector
 GENERATED ALWAYS AS (
-    to_address_tsvector(lt_endereco)
+    to_address_tsvector(
+        coalesce(lt_endereco, '') || ' ' ||
+        coalesce(lt_setor, '')    || ' ' ||
+        coalesce(lt_quadra, '')   || ' ' ||
+        coalesce(lt_conjunto, '') || ' ' ||
+        coalesce(lt_lote, '')     || ' ' ||
+        coalesce(lt_nome, '')
+    )
 ) STORED;
 
 CREATE INDEX li_ts_idx ON lotesimplantados USING GIN (address_tsvector);
