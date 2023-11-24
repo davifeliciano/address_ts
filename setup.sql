@@ -24,7 +24,7 @@ RETURNS text LANGUAGE SQL IMMUTABLE AS $$
             $1,
             '(?<![\d.,])[.,]+(?![\d.,])', ' ', 'g' -- remove dots and commas not enclosed by digits
         ),
-        '(?![\.,])[[:punct:]]', ' ', 'g' -- remove all punctuation except for dots and commas
+        '(?![\.,"])[[:punct:]]', ' ', 'g' -- remove all punctuation except for dots, commas and double quotes
     )
 $$;
 
@@ -79,7 +79,6 @@ CREATE TABLE ras (
     numero integer,
     nome text
 );
-
 
 \copy cadastrofiscal FROM '/csv/cadastrofiscal.csv' WITH CSV HEADER;
 \copy lotesimplantados FROM '/csv/lotesimplantados.csv' WITH CSV HEADER;
