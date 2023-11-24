@@ -24,7 +24,7 @@ WITH cte AS (
         ) AS query
     FROM lotesimplantados li
     LEFT JOIN ras ON ras.numero = lt_ra
-    WHERE ras.nome = 'Riacho Fundo'
+    WHERE ras.numero = 17
 )
 SELECT
     *
@@ -46,4 +46,5 @@ FROM (
     FROM cadastrofiscal cf, cte
     WHERE cf.bairro ILIKE '%' || cte.lt_ra_nome || '%' AND cte.query @@ cf.address_tsvector
 ) t
-WHERE rank = 1;
+WHERE rank = 1
+ORDER BY ts_rank DESC;
