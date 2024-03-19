@@ -11,5 +11,9 @@ services:
       - ./address_syn_dict.syn:/usr/share/postgresql/16/tsearch_data/address_syn_dict.syn
       - ./csv:/csv
       - ./setup.sql:/docker-entrypoint-initdb.d/setup.sql
+      - data:/var/lib/postgresql/data
     ports:
       - "5000:5432"
+
+volumes:
+    data:
